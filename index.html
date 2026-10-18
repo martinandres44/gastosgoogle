@@ -242,15 +242,15 @@
           <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
             <tr>
               <th class="py-3 px-3 cursor-pointer" onclick="sortBy('fecha')">Fecha <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer" onclick="sortBy('mes_resumen')">Mes <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-3 px-3 cursor-pointer hidden md:table-cell" onclick="sortBy('mes_resumen')">Mes <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
               <th class="py-3 px-3 cursor-pointer" onclick="sortBy('descripcion')">Descripción <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
               <th class="py-3 px-3 cursor-pointer" onclick="sortBy('personaNombre')">Persona <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer" onclick="sortBy('tarjetaClean')">Tarjeta <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-3 px-3 cursor-pointer hidden sm:table-cell" onclick="sortBy('tarjetaClean')">Tarjeta <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
               <th class="py-3 px-3 cursor-pointer" onclick="sortBy('categoria')">Categoría <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 text-center cursor-pointer" onclick="sortBy('cuota')">Cuota <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-3 px-3 text-center cursor-pointer hidden lg:table-cell" onclick="sortBy('cuota')">Cuota <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
               <th class="py-3 px-3 text-right cursor-pointer" onclick="sortBy('debitoCalculado')">Débito / ARS <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
               <th class="py-3 px-3 text-right cursor-pointer" onclick="sortBy('creditoCalculado')">Crédito <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 text-right cursor-pointer" onclick="sortBy('usdCalculado')">USD <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-3 px-3 text-right cursor-pointer text-cyan-400 font-bold" onclick="sortBy('usdCalculado')">USD <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
             </tr>
           </thead>
           <tbody id="txTableBody" class="divide-y divide-slate-700/60 bg-slate-800/50">
@@ -1932,10 +1932,10 @@
         return `
           <tr class="hover:bg-slate-700/40 transition">
             <td class="py-2.5 px-3 text-slate-400 whitespace-nowrap">${d.fecha}</td>
-            <td class="py-2.5 px-3 text-amber-400/90 whitespace-nowrap font-medium text-[11px]">${d.mesFmt}</td>
+            <td class="py-2.5 px-3 text-amber-400/90 whitespace-nowrap font-medium text-[11px] hidden md:table-cell">${d.mesFmt}</td>
             <td class="py-2.5 px-3 font-medium text-slate-100">${d.descripcion}</td>
             <td class="py-2.5 px-3 text-slate-300 whitespace-nowrap font-semibold">${d.personaNombre}</td>
-            <td class="py-2.5 px-3 whitespace-nowrap">
+            <td class="py-2.5 px-3 whitespace-nowrap hidden sm:table-cell">
               <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${cardStyle}">${d.tarjetaClean}</span>
             </td>
             <td class="py-2.5 px-3 whitespace-nowrap">
@@ -1944,7 +1944,7 @@
                 <i class="fa-solid fa-pen text-[9px] opacity-50"></i>
               </button>
             </td>
-            <td class="py-2.5 px-3 text-center">
+            <td class="py-2.5 px-3 text-center hidden lg:table-cell">
               <span class="text-[10px] ${cuotaVal ? 'text-amber-400 font-bold' : 'text-slate-500'}">${cuotaVal || '1/1'}</span>
             </td>
             <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap text-emerald-400">
@@ -1962,7 +1962,7 @@
 
       const totalRowHtml = `
         <tr class="bg-slate-900 font-mono font-bold text-slate-100 border-t-2 border-slate-600">
-          <td colspan="7" class="py-3 px-3 font-sans font-bold uppercase tracking-wider text-emerald-400 text-left">Total Filtrado (${filtered.length} mov.)</td>
+          <td colspan="4" class="py-3 px-3 font-sans font-bold uppercase tracking-wider text-emerald-400 text-left">Total Filtrado (${filtered.length} mov.)</td>
           <td class="py-3 px-3 text-right text-emerald-400 whitespace-nowrap">${sumDebito > 0 ? fmtP(sumDebito) : '—'}</td>
           <td class="py-3 px-3 text-right text-cyan-300 whitespace-nowrap">${sumCredito > 0 ? fmtP(sumCredito) : '—'}</td>
           <td class="py-3 px-3 text-right text-cyan-400 whitespace-nowrap">${sumUsd !== 0 ? fmtUSD(sumUsd) : '—'}</td>
@@ -2208,5 +2208,3 @@
   </script>
 </body>
 </html>
-
-```
