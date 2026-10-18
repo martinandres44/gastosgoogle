@@ -1,3 +1,14 @@
+Aquí tenés el código completo, ordenado y listo para copiar y pegar en tu archivo `index.html`.
+
+Esta versión incluye todas las correcciones necesarias:
+
+* Inclusión de **Mamá** en los cálculos consolidados y gráficos.
+* Lectura correcta de la columna **F (Créditos)** y **I (USD)** de la cuenta bancaria.
+* Fila de **Total Filtrado** alineada correctamente al pie de la tabla de movimientos.
+* Botón de **colapsar/expandir** la sección de filtros (personas y categorías).
+* Soporte completo para gráficos adaptados a **ARS** o **USD** según el filtro de moneda.
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -126,7 +137,7 @@
     <!-- Filtros: Buscador, Flujo, Cuotas, Personas, Categorías y Tarjetas -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-3.5 space-y-3 shadow-sm">
       
-      <!-- Fila 1: Buscador + Flujo + Filtro Cuotas + Tarjetas + Moneda + Reset -->
+      <!-- Fila 1: Buscador + Flujo + Filtro Cuotas + Tarjetas + Moneda + Reset + Botón Colapsar -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
         <!-- Buscador -->
         <div class="md:col-span-3 relative">
@@ -171,32 +182,38 @@
           </select>
         </div>
 
-        <!-- Reset -->
-        <div class="md:col-span-1">
-          <button onclick="resetFilters()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold py-2 rounded-lg border border-slate-600 transition flex items-center justify-center" title="Limpiar Filtros">
+        <!-- Reset & Toggle Collapse -->
+        <div class="md:col-span-1 flex items-center gap-1">
+          <button onclick="resetFilters()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold py-2 rounded-lg border border-slate-600 transition flex items-center justify-center" title="Limpiar Filtros">
             <i class="fa-solid fa-rotate-left"></i>
+          </button>
+          <button onclick="toggleFiltersCollapse()" id="collapseFiltersBtn" class="bg-slate-700 hover:bg-slate-600 text-emerald-400 text-xs font-semibold px-2.5 py-2 rounded-lg border border-slate-600 transition flex items-center justify-center" title="Contraer / Expandir Personas y Categorías">
+            <i class="fa-solid fa-chevron-up text-xs transition-transform duration-200" id="collapseIcon"></i>
           </button>
         </div>
       </div>
 
-      <!-- Fila 2: Personas (7 Personas Oficiales del Sheet) -->
-      <div class="pt-3 border-t border-slate-700/60">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-user-group text-emerald-400 mr-1"></i> Persona:</span>
+      <!-- Contenedor Colapsable (Personas & Categorías) -->
+      <div id="collapsibleFiltersContent" class="space-y-3 transition-all duration-200">
+        <!-- Fila 2: Personas (7 Personas Oficiales del Sheet) -->
+        <div class="pt-3 border-t border-slate-700/60">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-user-group text-emerald-400 mr-1"></i> Persona:</span>
+          </div>
+          <div class="flex flex-wrap gap-1.5" id="memberPillsContainer">
+            <!-- Populated in JS -->
+          </div>
         </div>
-        <div class="flex flex-wrap gap-1.5" id="memberPillsContainer">
-          <!-- Populated in JS -->
-        </div>
-      </div>
 
-      <!-- Fila 3: Categorías -->
-      <div class="pt-3 border-t border-slate-700/60">
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-tags text-cyan-400 mr-1"></i> Categorías:</span>
-          <span class="text-[11px] text-slate-400" id="catCounterLabel"></span>
-        </div>
-        <div class="flex flex-wrap gap-1.5 max-h-48 sm:max-h-56 overflow-y-auto pr-1" id="categoryPillsContainer">
-          <!-- Populated in JS -->
+        <!-- Fila 3: Categorías -->
+        <div class="pt-3 border-t border-slate-700/60">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-tags text-cyan-400 mr-1"></i> Categorías:</span>
+            <span class="text-[11px] text-slate-400" id="catCounterLabel"></span>
+          </div>
+          <div class="flex flex-wrap gap-1.5 max-h-48 sm:max-h-56 overflow-y-auto pr-1" id="categoryPillsContainer">
+            <!-- Populated in JS -->
+          </div>
         </div>
       </div>
 
@@ -420,7 +437,7 @@
       </div>
     </section>
 
-    <!-- TAB 5: GRÁFICOS & TENDENCIAS (CON SECCIÓN CATEGORÍAS Y TENDENCIA AL FINAL) -->
+    <!-- TAB 5: GRÁFICOS & TENDENCIAS -->
     <section id="tabContentGraficos" class="hidden space-y-6">
       
       <!-- 1. Donut & Bar Charts for Top Categories -->
@@ -450,14 +467,14 @@
         </div>
       </div>
 
-      <!-- 2. Sección Categorías (Cajitas con Total del Mes y Comparativa Mes Pasado / MoM) -->
+      <!-- 2. Sección Categorías (Cajitas con Total del Mes, Variación en $ y Comparativa Mes Pasado / MoM) -->
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-sm">
         <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
           <div>
             <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
               <i class="fa-solid fa-tags text-emerald-400"></i> Categorías — Totales y Comparativa Mes Pasado (MoM)
             </h2>
-            <p class="text-xs text-slate-400">Gasto actual del período vs. mes anterior</p>
+            <p class="text-xs text-slate-400">Gasto actual del período vs. mes anterior (en pesos y %)</p>
           </div>
         </div>
 
@@ -757,9 +774,9 @@
       try {
         const b = JSON.parse(localStorage.getItem(BUDGETS_KEY));
         if (b && Object.keys(b).length > 0) return b;
-        return DEFAULT_BUDGETS;
+        return DEFAULT_BUDgets;
       } catch (e) {
-        return DEFAULT_BUDGETS;
+        return DEFAULT_BUDgets;
       }
     }
 
@@ -929,7 +946,6 @@
 
           if (isBank) {
             debitoVal = Number(d.debito || d.DEBITO || d[Object.keys(d).find(k => k && k.toString().toLowerCase().includes('debito'))] || 0);
-            // Columna F es Crédito (índice 5 o d.credito / d.CREDITO / d['Crédito'])
             const rawCred = d.credito !== undefined ? d.credito : (d.CREDITO !== undefined ? d.CREDITO : (d[Object.keys(d).find(k => k && k.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes('credito'))] || (Array.isArray(d) ? d[5] : 0)));
             creditoVal = Number(rawCred || 0);
           } else {
@@ -1408,8 +1424,15 @@
       });
     }
 
+    function getAmt(d) {
+      const curr = document.getElementById('filterCurrency').value;
+      if (curr === 'usd') return d.usdCalculado || 0;
+      return (d.debitoCalculado || 0) - (d.creditoCalculado || 0);
+    }
+
     function updateDashboard() {
       const filtered = getFilteredData();
+      const currFilter = document.getElementById('filterCurrency').value;
 
       let totalARS = 0;
       let totalUSD = 0;
@@ -1429,7 +1452,8 @@
           totalARS += (deb - cred);
           totalCredito += cred;
           totalUSD += usd;
-          if (d.categoria) catMap[d.categoria] = (catMap[d.categoria] || 0) + (deb - cred);
+          const valCat = currFilter === 'usd' ? usd : (deb - cred);
+          if (d.categoria) catMap[d.categoria] = (catMap[d.categoria] || 0) + valCat;
         }
 
         if (d.cuota && /\d+\/\d+/.test(d.cuota)) cuotasCount++;
@@ -1697,13 +1721,14 @@
     }
 
     function renderCharts(filtered) {
+      const currFilter = document.getElementById('filterCurrency').value;
       const catTotals = {};
       let totalGastadoCategorias = 0;
 
       filtered.forEach(d => {
         const isExcluded = (!selectedPersona && (d.personaNombre === 'Anita'));
         if (!isExcluded) {
-          const p = (d.debitoCalculado - d.creditoCalculado);
+          const p = currFilter === 'usd' ? (d.usdCalculado || 0) : (d.debitoCalculado - d.creditoCalculado);
           if (p > 0) {
             const c = d.categoria || 'Sin categoría';
             catTotals[c] = (catTotals[c] || 0) + p;
@@ -1747,7 +1772,8 @@
                 label: ctx => {
                   const val = ctx.raw || 0;
                   const pct = totalGastadoCategorias > 0 ? ((val / totalGastadoCategorias) * 100).toFixed(1) : '0';
-                  return ` ${ctx.label.split(' (')[0]}: ${fmtP(val)} (${pct}%)`;
+                  const formatter = currFilter === 'usd' ? fmtUSD : fmtP;
+                  return ` ${ctx.label.split(' (')[0]}: ${formatter(val)} (${pct}%)`;
                 }
               }
             }
@@ -1778,7 +1804,10 @@
             legend: { display: false },
             tooltip: {
               callbacks: {
-                label: ctx => ` Gasto: ${fmtP(ctx.raw)}`
+                label: ctx => {
+                  const formatter = currFilter === 'usd' ? fmtUSD : fmtP;
+                  return ` Gasto: ${formatter(ctx.raw)}`;
+                }
               }
             }
           },
@@ -1805,7 +1834,7 @@
           if (d.mesFmt === prevMonth) {
             const isExcluded = (!selectedPersona && (d.personaNombre === 'Anita'));
             if (!isExcluded) {
-              const p = d.debitoCalculado - d.creditoCalculado;
+              const p = currFilter === 'usd' ? (d.usdCalculado || 0) : (d.debitoCalculado - d.creditoCalculado);
               if (p > 0 && d.categoria) {
                 prevMonthMap[d.categoria] = (prevMonthMap[d.categoria] || 0) + p;
               }
@@ -1827,13 +1856,17 @@
             const isUp = diff > 0;
             const colorClass = isUp ? 'text-rose-400' : 'text-emerald-400';
             const iconClass = isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
-            const diffFormatted = (isUp ? '+ ' : '- ') + fmtP(Math.abs(diff));
+            const formatter = currFilter === 'usd' ? fmtUSD : fmtP;
+            const diffFormatted = (isUp ? '+ ' : '- ') + formatter(Math.abs(diff));
             diffHtml = `
               <span class="${colorClass} text-[10px] font-mono flex items-center gap-1">
                 <i class="fa-solid ${iconClass}"></i> ${diffFormatted} (${isUp ? '+' : ''}${diffPct}%)
               </span>
             `;
           }
+
+          const formatter = currFilter === 'usd' ? fmtUSD : fmtP;
+          const prevFormatter = currFilter === 'usd' ? fmtUSD : fmtP;
 
           return `
             <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-3 space-y-1.5 shadow-sm">
@@ -1842,10 +1875,10 @@
                   <p class="text-xs font-bold text-slate-100 truncate max-w-[150px]">${catName}</p>
                   <p class="text-[10px] text-slate-400 font-mono">${pct}% del total</p>
                 </div>
-                <p class="text-sm font-black text-emerald-400 font-mono">${fmtP(val)}</p>
+                <p class="text-sm font-black text-emerald-400 font-mono">${formatter(val)}</p>
               </div>
               <div class="pt-1 border-t border-slate-800 flex justify-between items-center text-[10px]">
-                <span class="text-slate-400">Mes Ant: ${prevVal > 0 ? fmtP(prevVal) : '—'}</span>
+                <span class="text-slate-400">Mes Ant: ${prevVal > 0 ? prevFormatter(prevVal) : '—'}</span>
                 ${diffHtml}
               </div>
             </div>
@@ -1856,7 +1889,7 @@
       const memberTotals = { 'Martín': 0, 'Flor': 0, 'Pili': 0, 'Tomy': 0, 'Bauti': 0, 'Anita': 0, 'Mamá': 0 };
 
       filtered.forEach(d => {
-        const p = (d.debitoCalculado - d.creditoCalculado);
+        const p = currFilter === 'usd' ? (d.usdCalculado || 0) : (d.debitoCalculado - d.creditoCalculado);
         if (p > 0 && memberTotals.hasOwnProperty(d.personaNombre)) {
           memberTotals[d.personaNombre] += p;
         }
@@ -1880,7 +1913,7 @@
           plugins: { legend: { display: false } },
           scales: {
             x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { display: false } },
-            y: { ticks: { color: '#64748b', font: { size: 9 }, callback: v => '$' + (v / 1000000).toFixed(1) + 'M' }, grid: { color: '#334155' } }
+            y: { ticks: { color: '#64748b', font: { size: 9 }, callback: v => currFilter === 'usd' ? 'USD ' + v : '$' + (v / 1000000).toFixed(1) + 'M' }, grid: { color: '#334155' } }
           }
         }
       });
@@ -1894,7 +1927,15 @@
         return;
       }
 
-      tbody.innerHTML = filtered.map((d, index) => {
+      let sumDebito = 0;
+      let sumCredito = 0;
+      let sumUsd = 0;
+
+      const rowsHtml = filtered.map((d, index) => {
+        sumDebito += (d.debitoCalculado || 0);
+        sumCredito += (d.creditoCalculado || 0);
+        sumUsd += (d.usdCalculado || 0);
+
         const cardName = d.tarjetaClean;
         const cardStyle = cardName.includes('BBVA') ? 'bg-rose-500/20 text-rose-300' : cardName.includes('MC') || cardName.includes('Master') ? 'bg-amber-500/20 text-amber-300' : cardName.includes('Amex') ? 'bg-emerald-500/20 text-emerald-300' : cardName.includes('Cta') ? 'bg-cyan-500/20 text-cyan-300' : 'bg-blue-500/20 text-blue-300';
         const cuotaVal = d.cuota && /\d+\/\d+/.test(d.cuota) ? d.cuota : '';
@@ -1930,6 +1971,16 @@
         `;
       }).join('');
 
+      const totalRowHtml = `
+        <tr class="bg-slate-900 font-mono font-bold text-slate-100 border-t-2 border-slate-600">
+          <td colspan="7" class="py-3 px-3 font-sans font-bold uppercase tracking-wider text-emerald-400 text-left">Total Filtrado (${filtered.length} mov.)</td>
+          <td class="py-3 px-3 text-right text-emerald-400 whitespace-nowrap">${sumDebito > 0 ? fmtP(sumDebito) : '—'}</td>
+          <td class="py-3 px-3 text-right text-cyan-300 whitespace-nowrap">${sumCredito > 0 ? fmtP(sumCredito) : '—'}</td>
+          <td class="py-3 px-3 text-right text-cyan-400 whitespace-nowrap">${sumUsd !== 0 ? fmtUSD(sumUsd) : '—'}</td>
+        </tr>
+      `;
+
+      tbody.innerHTML = rowsHtml + totalRowHtml;
       document.getElementById('tableStats').textContent = `Mostrando ${filtered.length} de ${DATA.length} movimientos`;
     }
 
@@ -2150,7 +2201,23 @@
       XLSX.writeFile(wb, `Control_Gastos_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 
+    let filtersCollapsed = false;
+    function toggleFiltersCollapse() {
+      filtersCollapsed = !filtersCollapsed;
+      const content = document.getElementById('collapsibleFiltersContent');
+      const icon = document.getElementById('collapseIcon');
+      if (filtersCollapsed) {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(180deg)';
+      } else {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(0deg)';
+      }
+    }
+
     loadData();
   </script>
 </body>
 </html>
+
+```
