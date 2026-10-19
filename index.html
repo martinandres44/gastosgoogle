@@ -18,6 +18,14 @@
     
     .tab-nav-btn { transition: all 0.15s ease; border-bottom: 2px solid transparent; }
     .tab-nav-btn.active { color: #10b981; border-color: #10b981; font-weight: 700; }
+    .metric-card { background: linear-gradient(145deg, rgba(30,41,59,.96), rgba(15,23,42,.92)); border: 1px solid rgba(71,85,105,.65); }
+    .metric-card:hover { transform: translateY(-1px); border-color: rgba(100,116,139,.9); }
+    .metric-card { transition: transform .18s ease, border-color .18s ease; }
+    .soft-panel { background: linear-gradient(180deg, rgba(30,41,59,.88), rgba(15,23,42,.72)); }
+    .insight-row + .insight-row { border-top: 1px solid rgba(71,85,105,.45); }
+    .progress-track { height: 8px; background:#0f172a; border-radius:999px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:999px; transition:width .35s ease; }
+    .sticky-tabs { position: sticky; top: 69px; z-index: 30; background: rgba(15,23,42,.94); backdrop-filter: blur(10px); }
 
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -95,7 +103,7 @@
         <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Consolidado USD</p>
         <p class="text-xl sm:text-2xl font-black text-cyan-400 mt-0.5" id="kpi-usd">USD 0</p>
         <p class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
-          <i class="fa-solid fa-plane-departure mr-0.5"></i><span>Vuelos & Suscripciones</span>
+          <i class="fa-solid fa-dollar-sign mr-0.5"></i><span>Consumos del período</span>
         </p>
       </div>
 
@@ -208,9 +216,12 @@
 
     </section>
 
-    <!-- Navegación por Tabs de Contenido (Detalle vs Cuotas vs Fijos vs Presupuestos vs Gráficos) -->
-    <div class="flex items-center border-b border-slate-700 gap-4 sm:gap-6 text-xs sm:text-sm font-semibold px-2 overflow-x-auto">
-      <button onclick="switchMainTab('detalle')" id="tabNavDetalle" class="tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap">
+    <!-- Navegación principal -->
+    <div class="sticky-tabs flex items-center border-b border-slate-700 gap-4 sm:gap-6 text-xs sm:text-sm font-semibold px-2 pt-2 overflow-x-auto">
+      <button onclick="switchMainTab('resumen')" id="tabNavResumen" class="tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap">
+        <i class="fa-solid fa-gauge-high text-emerald-400"></i> Resumen
+      </button>
+      <button onclick="switchMainTab('detalle')" id="tabNavDetalle" class="tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap">
         <i class="fa-solid fa-list-ul text-emerald-400"></i> Movimientos
       </button>
       <button onclick="switchMainTab('cuotas')" id="tabNavCuotas" class="tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap">
@@ -227,8 +238,75 @@
       </button>
     </div>
 
+    <!-- TAB 0: RESUMEN EJECUTIVO -->
+    <section id="tabContentResumen" class="space-y-5">
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+        <div class="xl:col-span-2 metric-card rounded-2xl p-5 sm:p-6 shadow-sm">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-400">
+                <i class="fa-solid fa-chart-line"></i> Panorama del período
+              </div>
+              <div class="mt-3 flex items-end gap-3 flex-wrap">
+                <div id="summaryTotal" class="text-3xl sm:text-4xl font-black tracking-tight text-white">$ 0</div>
+                <div id="summaryMomBadge" class="mb-1 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-700 text-slate-300">Sin comparación</div>
+              </div>
+              <p id="summaryPeriodText" class="text-sm text-slate-400 mt-2">Gastos del período seleccionado</p>
+            </div>
+            <div class="sm:text-right">
+              <div class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Promedio diario</div>
+              <div id="summaryDailyAvg" class="text-xl font-black text-slate-200 mt-1">$ 0</div>
+            </div>
+          </div>
+          <div class="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="bg-slate-900/65 rounded-xl p-3 border border-slate-700/60"><div class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Mes anterior</div><div id="summaryPrev" class="text-base font-bold text-slate-200 mt-1">$ 0</div></div>
+            <div class="bg-slate-900/65 rounded-xl p-3 border border-slate-700/60"><div class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Proyección cierre</div><div id="summaryForecast" class="text-base font-bold text-cyan-300 mt-1">$ 0</div></div>
+            <div class="bg-slate-900/65 rounded-xl p-3 border border-slate-700/60"><div class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Fijos detectados</div><div id="summaryFixed" class="text-base font-bold text-indigo-300 mt-1">$ 0</div></div>
+            <div class="bg-slate-900/65 rounded-xl p-3 border border-slate-700/60"><div class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Cuotas pendientes</div><div id="summaryInstallments" class="text-base font-bold text-amber-300 mt-1">$ 0</div></div>
+          </div>
+        </div>
+
+        <div class="metric-card rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-2">
+            <div><div class="text-xs font-bold uppercase tracking-widest text-rose-400">Presupuesto</div><div class="text-[11px] text-slate-500 mt-1">Categorías con límite configurado</div></div>
+            <i class="fa-solid fa-bullseye text-rose-400 text-xl"></i>
+          </div>
+          <div class="mt-5 flex items-end justify-between gap-3">
+            <div id="summaryBudgetSpent" class="text-2xl font-black text-white">$ 0</div>
+            <div id="summaryBudgetPct" class="text-sm font-black text-slate-300">0%</div>
+          </div>
+          <div class="progress-track mt-3"><div id="summaryBudgetBar" class="progress-fill bg-emerald-500" style="width:0%"></div></div>
+          <div id="summaryBudgetRemain" class="text-xs text-slate-400 mt-3">Sin presupuesto configurado</div>
+          <button onclick="switchMainTab('presupuestos')" class="mt-4 w-full py-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-xs font-bold text-slate-200 transition">Ver presupuestos</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="soft-panel border border-slate-700 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div><h2 class="text-base font-bold text-slate-100"><i class="fa-solid fa-wand-magic-sparkles text-amber-400 mr-2"></i>Qué cambió</h2><p class="text-xs text-slate-500 mt-1">Principales explicaciones de la variación del gasto</p></div>
+          </div>
+          <div id="summaryDrivers" class="mt-3"></div>
+        </div>
+        <div class="soft-panel border border-slate-700 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div><h2 class="text-base font-bold text-slate-100"><i class="fa-solid fa-lightbulb text-cyan-400 mr-2"></i>Insights</h2><p class="text-xs text-slate-500 mt-1">Señales útiles calculadas sobre tus movimientos</p></div>
+          </div>
+          <div id="summaryInsights" class="mt-3"></div>
+        </div>
+      </div>
+
+      <div class="soft-panel border border-slate-700 rounded-2xl p-5 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div><h2 class="text-base font-bold text-slate-100"><i class="fa-solid fa-ranking-star text-emerald-400 mr-2"></i>Top categorías</h2><p class="text-xs text-slate-500 mt-1">Dónde se concentra el gasto del período</p></div>
+          <button onclick="switchMainTab('graficos')" class="text-xs font-bold text-cyan-400 hover:text-cyan-300">Ver análisis completo →</button>
+        </div>
+        <div id="summaryTopCats" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
     <!-- TAB 1: TABLA DE DETALLE -->
-    <section id="tabContentDetalle" class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-sm">
+    <section id="tabContentDetalle" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-sm">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
         <div>
           <h2 class="text-base font-bold text-slate-200">Listado de Consumos</h2>
@@ -241,16 +319,16 @@
         <table class="min-w-full divide-y divide-slate-700 text-left text-xs">
           <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
             <tr>
-              <th class="py-3 px-3 cursor-pointer" onclick="sortBy('fecha')">Fecha <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer hidden md:table-cell" onclick="sortBy('mes_resumen')">Mes <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer" onclick="sortBy('descripcion')">Descripción <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer" onclick="sortBy('personaNombre')">Persona <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer hidden sm:table-cell" onclick="sortBy('tarjetaClean')">Tarjeta <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 cursor-pointer" onclick="sortBy('categoria')">Categoría <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 text-center cursor-pointer hidden lg:table-cell" onclick="sortBy('cuota')">Cuota <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 text-right cursor-pointer" onclick="sortBy('debitoCalculado')">Débito / ARS <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 text-right cursor-pointer" onclick="sortBy('creditoCalculado')">Crédito <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
-              <th class="py-3 px-3 text-right cursor-pointer text-cyan-400 font-bold" onclick="sortBy('usdCalculado')">USD <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] cursor-pointer" onclick="sortBy('fecha')">Fecha <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] cursor-pointer hidden xl:table-cell" onclick="sortBy('mes_resumen')">Mes <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] cursor-pointer" onclick="sortBy('descripcion')">Descripción <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] cursor-pointer" onclick="sortBy('personaNombre')">Persona <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] cursor-pointer hidden md:table-cell" onclick="sortBy('tarjetaClean')">Tarjeta <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] cursor-pointer" onclick="sortBy('categoria')">Categoría <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-1.5 text-[11px] text-center cursor-pointer hidden lg:table-cell" onclick="sortBy('cuota')">Cuota <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] text-right cursor-pointer" onclick="sortBy('debitoCalculado')">Débito / ARS <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] text-right cursor-pointer hidden lg:table-cell" onclick="sortBy('creditoCalculado')">Crédito <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
+              <th class="py-2 px-2 text-[11px] text-right cursor-pointer" onclick="sortBy('usdCalculado')">USD <i class="fa-solid fa-sort ml-1 opacity-50"></i></th>
             </tr>
           </thead>
           <tbody id="txTableBody" class="divide-y divide-slate-700/60 bg-slate-800/50">
@@ -297,15 +375,15 @@
           <table class="min-w-full divide-y divide-slate-700 text-left text-xs" id="tableCuotasFuturas">
             <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
               <tr>
-                <th class="py-3 px-3">Tarjeta</th>
-                <th class="py-3 px-3 text-right">Sep-26</th>
-                <th class="py-3 px-3 text-right">Oct-26</th>
-                <th class="py-3 px-3 text-right">Nov-26</th>
-                <th class="py-3 px-3 text-right">Dic-26</th>
-                <th class="py-3 px-3 text-right">Ene-27</th>
-                <th class="py-3 px-3 text-right">Feb-27</th>
-                <th class="py-3 px-3 text-right">Mar-27+</th>
-                <th class="py-3 px-3 text-right text-amber-400">Total Tarjeta</th>
+                <th class="py-2 px-2 text-[11px]">Tarjeta</th>
+                <th class="py-2 px-2 text-[11px] text-right">Sep-26</th>
+                <th class="py-2 px-2 text-[11px] text-right">Oct-26</th>
+                <th class="py-2 px-2 text-[11px] text-right">Nov-26</th>
+                <th class="py-2 px-2 text-[11px] text-right">Dic-26</th>
+                <th class="py-2 px-2 text-[11px] text-right">Ene-27</th>
+                <th class="py-2 px-2 text-[11px] text-right">Feb-27</th>
+                <th class="py-2 px-2 text-[11px] text-right">Mar-27+</th>
+                <th class="py-2 px-2 text-[11px] text-right text-amber-400">Total Tarjeta</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700/60 bg-slate-800/50" id="tbodyCuotasFuturas">
@@ -330,13 +408,13 @@
           <table class="min-w-full divide-y divide-slate-700 text-left text-xs">
             <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
               <tr>
-                <th class="py-3 px-3">Descripción / Comercio</th>
-                <th class="py-3 px-3">Persona</th>
-                <th class="py-3 px-3">Tarjeta</th>
-                <th class="py-3 px-3 text-center">Cuota Actual</th>
-                <th class="py-3 px-3 text-center">Restantes</th>
-                <th class="py-3 px-3 text-right">Valor Cuota</th>
-                <th class="py-3 px-3 text-right text-amber-400">Saldo Pendiente</th>
+                <th class="py-2 px-2 text-[11px]">Descripción / Comercio</th>
+                <th class="py-2 px-2 text-[11px]">Persona</th>
+                <th class="py-2 px-2 text-[11px]">Tarjeta</th>
+                <th class="py-2 px-2 text-[11px] text-center">Cuota Actual</th>
+                <th class="py-2 px-2 text-[11px] text-center">Restantes</th>
+                <th class="py-2 px-2 text-[11px] text-right">Valor Cuota</th>
+                <th class="py-2 px-2 text-[11px] text-right text-amber-400">Saldo Pendiente</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700/60 bg-slate-800/50" id="tbodyPlanesActivos">
@@ -389,12 +467,12 @@
           <table class="min-w-full divide-y divide-slate-700 text-left text-xs">
             <thead class="bg-slate-900/80 text-slate-400 font-semibold uppercase tracking-wider">
               <tr>
-                <th class="py-3 px-3">Servicio / Comercio</th>
-                <th class="py-3 px-3">Categoría</th>
-                <th class="py-3 px-3">Titular</th>
-                <th class="py-3 px-3">Medio de Pago</th>
-                <th class="py-3 px-3 text-right cursor-pointer" onclick="toggleRecurrentesSort()">Importe ARS <i class="fa-solid fa-sort ml-1"></i></th>
-                <th class="py-3 px-3 text-right">Importe USD</th>
+                <th class="py-2 px-2 text-[11px]">Servicio / Comercio</th>
+                <th class="py-2 px-2 text-[11px]">Categoría</th>
+                <th class="py-2 px-2 text-[11px]">Titular</th>
+                <th class="py-2 px-2 text-[11px]">Medio de Pago</th>
+                <th class="py-2 px-2 text-[11px] text-right cursor-pointer" onclick="toggleRecurrentesSort()">Importe ARS <i class="fa-solid fa-sort ml-1"></i></th>
+                <th class="py-2 px-2 text-[11px] text-right">Importe USD</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-700/60 bg-slate-800/50" id="tbodyRecurrentes">
@@ -426,7 +504,7 @@
       </div>
     </section>
 
-    <!-- TAB 5: GRÁFICOS & TENDENCIAS -->
+    <!-- TAB 5: GRÁFICOS & TENDENCIAS (CON SECCIÓN CATEGORÍAS Y TENDENCIA AL FINAL) -->
     <section id="tabContentGraficos" class="hidden space-y-6">
       
       <!-- 1. Donut & Bar Charts for Top Categories -->
@@ -434,7 +512,7 @@
         <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-sm">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
-              <i class="fa-solid fa-chart-pie text-emerald-400"></i> Top 10 Categorías con % (ARS)
+              <i class="fa-solid fa-chart-pie text-emerald-400"></i> <span id="chartTitleDonut">Top 10 Categorías con % (ARS)</span>
             </h2>
             <span class="text-[11px] text-slate-400 font-mono">10 mayores rubros</span>
           </div>
@@ -448,7 +526,7 @@
             <h2 class="text-sm font-semibold text-slate-300 flex items-center gap-2">
               <i class="fa-solid fa-chart-bar text-amber-400"></i> Top 10 Categorías (Gráfico de Barras)
             </h2>
-            <span class="text-[11px] text-slate-400 font-mono">ARS</span>
+            <span class="text-[11px] text-slate-400 font-mono" id="chartCurrencyTagBar">ARS</span>
           </div>
           <div class="h-72 flex items-center justify-center relative">
             <canvas id="categoryBarChart"></canvas>
@@ -456,14 +534,14 @@
         </div>
       </div>
 
-      <!-- 2. Sección Categorías (Cajitas con Total del Mes, Variación en $ y Comparativa Mes Pasado / MoM) -->
+      <!-- 2. Sección Categorías (Cajitas con Total del Mes y Comparativa Mes Pasado / MoM) -->
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4 shadow-sm">
         <div class="flex justify-between items-center border-b border-slate-700/60 pb-3">
           <div>
             <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
               <i class="fa-solid fa-tags text-emerald-400"></i> Categorías — Totales y Comparativa Mes Pasado (MoM)
             </h2>
-            <p class="text-xs text-slate-400">Gasto actual del período vs. mes anterior (en pesos y %)</p>
+            <p class="text-xs text-slate-400">Gasto actual del período vs. mes anterior</p>
           </div>
         </div>
 
@@ -475,7 +553,7 @@
       <!-- 3. Consumo por Persona -->
       <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 shadow-sm">
         <h2 class="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-users text-cyan-400"></i> Consumos por Persona (ARS)
+          <i class="fa-solid fa-users text-cyan-400"></i> <span id="chartTitleMember">Consumos por Persona (ARS)</span>
         </h2>
         <div class="h-72 flex items-center justify-center relative">
           <canvas id="memberChart"></canvas>
@@ -487,7 +565,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-700/60 pb-3">
           <div>
             <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-emerald-400"></i> Tendencia de Gastos en el Tiempo (ARS)
+              <i class="fa-solid fa-chart-line text-emerald-400"></i> <span id="chartTitleTrend">Tendencia de Gastos en el Tiempo (ARS)</span>
             </h2>
             <p class="text-xs text-slate-400">Evolución mensual histórica filtrable por categoría</p>
           </div>
@@ -547,7 +625,7 @@
           <h2 class="text-base font-bold text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-gear text-emerald-400"></i> Categorías & Reglas Automáticas
           </h2>
-          <p class="text-xs text-slate-400">Reglas pre-cargadas de tu Sheet para clasificar automáticamente</p>
+          <p class="text-xs text-slate-400">Las reglas solo completan movimientos sin categoría; nunca reemplazan la categoría del Google Sheet</p>
         </div>
         <button onclick="closeRulesModal()" class="text-slate-400 hover:text-white text-lg p-1"><i class="fa-solid fa-xmark"></i></button>
       </div>
@@ -561,7 +639,7 @@
         <div id="panelRules" class="space-y-3">
           <div class="p-3 bg-slate-900/80 rounded-xl border border-slate-700 text-slate-300 text-[11px] mb-2 flex items-start gap-2">
             <i class="fa-solid fa-wand-magic-sparkles text-cyan-400 mt-0.5"></i>
-            <span>Si la descripción contiene el texto → se asigna la categoría correspondiente.</span>
+            <span>Si el Google Sheet no trae categoría y la descripción contiene el texto → se asigna la categoría correspondiente.</span>
           </div>
           <div style="display:grid;grid-template-columns:1fr 140px 32px;gap:8px;margin-bottom:4px;padding:0 4px;">
             <span class="text-[10px] font-bold text-slate-400 uppercase">Texto a Buscar</span>
@@ -763,9 +841,9 @@
       try {
         const b = JSON.parse(localStorage.getItem(BUDGETS_KEY));
         if (b && Object.keys(b).length > 0) return b;
-        return DEFAULT_BUDgets;
+        return DEFAULT_BUDGETS;
       } catch (e) {
-        return DEFAULT_BUDgets;
+        return DEFAULT_BUDGETS;
       }
     }
 
@@ -821,26 +899,70 @@
       return 'Martín';
     }
 
+    function normalizarCategoria(c) {
+      if (!c) return '';
+      const s = String(c).trim();
+      const u = s.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (u === 'SIN CATEGORIA' || u === 'SIN CLASIFICAR' || u === '-' || u === 'N/A' || u === 'NONE') return '';
+      if (u === 'AUTO' || u === 'AUTOMOVIL' || u === 'AUTOS') return 'Automóvil';
+      if (u === 'COMBUSTIBLE' || u === 'COMBUSTIBLES' || u === 'NAFTA' || u === 'GNC' || u === 'ESTACION DE SERVICIO') return 'Combustible';
+      return s;
+    }
+
+    function parseAmt(val) {
+      if (!val) return 0;
+      if (typeof val === 'number') return val;
+      let s = String(val).trim().replace(/[$\s]/g, '');
+      if (s.includes(',') && s.includes('.')) {
+        if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
+        else s = s.replace(/,/g, '');
+      } else if (s.includes(',')) {
+        s = s.replace(',', '.');
+      }
+      return Number(s) || 0;
+    }
+
     const MONTHS_ES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const MONTHS_EN_MAP = { jan:'Ene', feb:'Feb', mar:'Mar', apr:'Abr', may:'May', jun:'Jun', jul:'Jul', aug:'Ago', sep:'Sep', oct:'Oct', nov:'Nov', dec:'Dic' };
     function fmtMes(val) {
       if (!val) return '';
       const s = String(val).trim();
-      
-      const parts = s.split('-');
-      if (parts.length === 2 && parts[0].length === 3 && parts[1].length === 2) {
-        return parts[0].charAt(0).toUpperCase() + parts[0].slice(1).toLowerCase() + '-' + parts[1];
+
+      const mText = s.match(/^([A-Za-z]{3})[-\/\s.]*(\d{2,4})$/);
+      if (mText) {
+        const rawMon = mText[1].toLowerCase();
+        const mapped = MONTHS_EN_MAP[rawMon] || (mText[1].charAt(0).toUpperCase() + mText[1].slice(1).toLowerCase());
+        const idx = MONTHS_ES.findIndex(m => m.toLowerCase() === mapped.toLowerCase());
+        if (idx !== -1) return MONTHS_ES[idx] + '-' + mText[2].slice(-2);
+      }
+
+      const mDMY = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})$/);
+      if (mDMY) {
+        const monthIdx = parseInt(mDMY[2], 10) - 1;
+        const yearShort = String(mDMY[3]).slice(-2);
+        if (monthIdx >= 0 && monthIdx < 12) return MONTHS_ES[monthIdx] + '-' + yearShort;
+      }
+
+      const mISO = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+      if (mISO) {
+        const monthIdx = parseInt(mISO[2], 10) - 1;
+        const yearShort = String(mISO[1]).slice(-2);
+        if (monthIdx >= 0 && monthIdx < 12) return MONTHS_ES[monthIdx] + '-' + yearShort;
       }
 
       try {
-        const d = new Date(val);
-        if (!isNaN(d.getTime())) return MONTHS_ES[d.getMonth()] + '-' + String(d.getFullYear()).slice(-2);
+        const d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          if (s.includes('T') && s.includes('Z')) return MONTHS_ES[d.getUTCMonth()] + '-' + String(d.getUTCFullYear()).slice(-2);
+          return MONTHS_ES[d.getMonth()] + '-' + String(d.getFullYear()).slice(-2);
+        }
       } catch (e) {}
 
-      if (/^\d{2}-\d{2}-\d{2}$/.test(val)) {
-        const [, m, y] = val.split('-');
+      if (/^\d{2}-\d{2}-\d{2}$/.test(s)) {
+        const [, m, y] = s.split('-');
         return MONTHS_ES[parseInt(m) - 1] + '-' + y;
       }
-      return val;
+      return s;
     }
 
     const fmtP = v => '$ ' + Number(v || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -878,7 +1000,7 @@
     let sortField = 'fecha';
     let sortDir = -1;
     let editingRowRef = null;
-    let currentMainTab = 'detalle';
+    let currentMainTab = 'resumen';
 
     let activeTrendCategories = [];
 
@@ -890,19 +1012,23 @@
     function switchMainTab(tab) {
       currentMainTab = tab;
       
+      document.getElementById('tabContentResumen').classList.toggle('hidden', tab !== 'resumen');
       document.getElementById('tabContentDetalle').classList.toggle('hidden', tab !== 'detalle');
       document.getElementById('tabContentCuotas').classList.toggle('hidden', tab !== 'cuotas');
       document.getElementById('tabContentRecurrentes').classList.toggle('hidden', tab !== 'recurrentes');
       document.getElementById('tabContentPresupuestos').classList.toggle('hidden', tab !== 'presupuestos');
       document.getElementById('tabContentGraficos').classList.toggle('hidden', tab !== 'graficos');
 
+      document.getElementById('tabNavResumen').className = (tab === 'resumen') ? 'tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap' : 'tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap';
       document.getElementById('tabNavDetalle').className = (tab === 'detalle') ? 'tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap' : 'tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap';
       document.getElementById('tabNavCuotas').className = (tab === 'cuotas') ? 'tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap' : 'tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap';
       document.getElementById('tabNavRecurrentes').className = (tab === 'recurrentes') ? 'tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap' : 'tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap';
       document.getElementById('tabNavPresupuestos').className = (tab === 'presupuestos') ? 'tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap' : 'tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap';
       document.getElementById('tabNavGraficos').className = (tab === 'graficos') ? 'tab-nav-btn active pb-3 flex items-center gap-1.5 whitespace-nowrap' : 'tab-nav-btn text-slate-400 hover:text-slate-200 pb-3 flex items-center gap-1.5 whitespace-nowrap';
 
-      if (tab === 'cuotas') {
+      if (tab === 'resumen') {
+        renderExecutiveSummary();
+      } else if (tab === 'cuotas') {
         renderCuotasTab();
       } else if (tab === 'recurrentes') {
         renderRecurrentesTab();
@@ -934,12 +1060,13 @@
           let creditoVal = 0;
 
           if (isBank) {
-            debitoVal = Number(d.debito || d.DEBITO || d[Object.keys(d).find(k => k && k.toString().toLowerCase().includes('debito'))] || 0);
-            const rawCred = d.credito !== undefined ? d.credito : (d.CREDITO !== undefined ? d.CREDITO : (d[Object.keys(d).find(k => k && k.toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes('credito'))] || (Array.isArray(d) ? d[5] : 0)));
-            creditoVal = Number(rawCred || 0);
+            const rawDeb = d.debito !== undefined ? d.debito : (d.DEBITO !== undefined ? d.DEBITO : d.pesos);
+            debitoVal = Math.abs(parseAmt(rawDeb));
+            const rawCred = d.credito !== undefined ? d.credito : (d.CREDITO !== undefined ? d.CREDITO : (Array.isArray(d) ? d[5] : 0));
+            creditoVal = Math.abs(parseAmt(rawCred));
           } else {
-            creditoVal = Number(d.credito || 0);
-            const p = Number(d.pesos || 0);
+            creditoVal = Math.abs(parseAmt(d.credito));
+            const p = parseAmt(d.pesos !== undefined ? d.pesos : d.debito);
             if (p < 0) {
               creditoVal = Math.abs(p);
             } else {
@@ -947,23 +1074,13 @@
             }
           }
 
-          const ruleCat = applyRules(d);
-          const finalCat = ruleCat || d.categoria || 'Sin categoría';
+          const sheetCat = normalizarCategoria(d.categoria);
+          const ruleCat = normalizarCategoria(applyRules(d));
+          // La categoría del Google Sheet manda. Las reglas automáticas actúan solo si el Sheet viene vacío o "Sin categoría".
+          const finalCat = sheetCat || ruleCat || 'Sin categoría';
 
-          const rawUsd = d.usd !== undefined ? d.usd : (d.USD !== undefined ? d.USD : (d[Object.keys(d).find(k => k.toLowerCase() === 'usd')] || 0));
-          let usdVal = 0;
-          if (typeof rawUsd === 'number') {
-            usdVal = rawUsd;
-          } else if (rawUsd) {
-            let s = String(rawUsd).trim().replace('$', '').replace(/USD/gi, '').replace(/U\$S/gi, '').replace(/\s/g, '');
-            if (s.includes(',') && s.includes('.')) {
-              if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.');
-              else s = s.replace(/,/g, '');
-            } else if (s.includes(',')) {
-              s = s.replace(',', '.');
-            }
-            usdVal = parseFloat(s) || 0;
-          }
+          let usdVal = parseAmt(d.usd !== undefined ? d.usd : d.USD);
+          const rawMes = d.mes_resumen || d.fecha_resumen || d['fecha resumen'] || d.resumen || d.mes || d.fecha || '';
 
           return {
             ...d,
@@ -975,12 +1092,12 @@
             debitoCalculado: debitoVal,
             creditoCalculado: creditoVal,
             usdCalculado: usdVal,
-            mesFmt: fmtMes(d.mes_resumen),
+            mesFmt: fmtMes(rawMes),
             tarjetaClean: d.tarjeta || (isBank ? 'Cta. Bancaria' : 'Tarjeta')
           };
         });
 
-        ALL_CATEGORIES = [...new Set([...(json.cats || []), ...DATA.map(d => d.categoria).filter(Boolean)])].sort();
+        ALL_CATEGORIES = [...new Set([...(json.cats || []), ...DATA.map(d => normalizarCategoria(d.categoria)).filter(Boolean)])].sort();
         
         status.textContent = `Conectado · ${DATA.length} filas online`;
         status.className = 'text-emerald-400 font-medium';
@@ -1057,15 +1174,15 @@
 
       tbody.innerHTML = recurrentesFiltered.map(d => `
         <tr class="hover:bg-slate-700/40 transition">
-          <td class="py-2.5 px-3 font-medium text-slate-100 flex items-center gap-2">
+          <td class="py-1.5 px-2 text-[11px] font-medium text-slate-100 flex items-center gap-2">
             <i class="fa-solid fa-repeat text-indigo-400 text-xs"></i>
             <span>${d.descripcion}</span>
           </td>
-          <td class="py-2.5 px-3 text-slate-300">${d.categoria}</td>
-          <td class="py-2.5 px-3 text-slate-300 font-semibold">${d.personaNombre}</td>
-          <td class="py-2.5 px-3 text-slate-400">${d.tarjetaClean}</td>
-          <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-400">${d.debitoCalculado > 0 ? fmtP(d.debitoCalculado) : '—'}</td>
-          <td class="py-2.5 px-3 text-right font-mono font-bold text-cyan-400">${d.usdCalculado > 0 ? fmtUSD(d.usdCalculado) : '—'}</td>
+          <td class="py-1.5 px-2 text-[11px] text-slate-300">${d.categoria}</td>
+          <td class="py-1.5 px-2 text-[11px] text-slate-300 font-semibold">${d.personaNombre}</td>
+          <td class="py-1.5 px-2 text-[11px] text-slate-400">${d.tarjetaClean}</td>
+          <td class="py-1.5 px-2 text-[11px] text-right font-mono font-bold text-emerald-400">${d.debitoCalculado > 0 ? fmtP(d.debitoCalculado) : '—'}</td>
+          <td class="py-1.5 px-2 text-[11px] text-right font-mono font-bold text-cyan-400">${d.usdCalculado > 0 ? fmtUSD(d.usdCalculado) : '—'}</td>
         </tr>
       `).join('');
     }
@@ -1081,7 +1198,7 @@
       filtered.forEach(d => {
         const isExcluded = (!selectedPersona && (d.personaNombre === 'Anita'));
         if (!isExcluded) {
-          const p = d.debitoCalculado - d.creditoCalculado;
+          const p = Math.max(0, Number(d.debitoCalculado || 0));
           if (p > 0 && d.categoria) {
             spentMap[d.categoria] = (spentMap[d.categoria] || 0) + p;
           }
@@ -1172,7 +1289,7 @@
       if (activeTrendCategories.length === 0) {
         const catTotals = {};
         DATA.forEach(d => {
-          const p = (d.debitoCalculado - d.creditoCalculado);
+          const p = Math.max(0, Number(d.debitoCalculado || 0));
           if (p > 0 && d.categoria) catTotals[d.categoria] = (catTotals[d.categoria] || 0) + p;
         });
         activeTrendCategories = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 5).map(e => e[0]);
@@ -1203,7 +1320,7 @@
       if (enableTop) {
         const catTotals = {};
         DATA.forEach(d => {
-          const p = (d.debitoCalculado - d.creditoCalculado);
+          const p = Math.max(0, Number(d.debitoCalculado || 0));
           if (p > 0 && d.categoria) catTotals[d.categoria] = (catTotals[d.categoria] || 0) + p;
         });
         activeTrendCategories = Object.entries(catTotals).sort((a, b) => b[1] - a[1]).slice(0, 5).map(e => e[0]);
@@ -1337,8 +1454,13 @@
     }
 
     function setCategoryFilter(cat) {
-      selectedCategory = cat;
+      if (cat && selectedCategory === cat) {
+        selectedCategory = '';
+      } else {
+        selectedCategory = cat;
+      }
       populateFilters();
+      if (selectedCategory !== '' && currentMainTab === 'resumen') switchMainTab('detalle');
       updateDashboard();
     }
 
@@ -1395,7 +1517,7 @@
 
         const matchCard = !selectedCard || d.tarjetaClean === selectedCard;
         const matchCurr = !curr || (curr === 'pesos' ? (d.debitoCalculado > 0 || d.creditoCalculado > 0) : d.usdCalculado !== 0);
-        const matchCat = !selectedCategory || d.categoria === selectedCategory;
+        const matchCat = !selectedCategory || normalizarCategoria(d.categoria) === normalizarCategoria(selectedCategory);
         const matchMonth = selectedMonths.length === 0 || selectedMonths.includes(d.mesFmt);
 
         return matchSearch && matchCard && matchCurr && matchCat && matchMonth;
@@ -1473,6 +1595,7 @@
 
       renderCardsSummary(cardMap);
       renderTable(filtered);
+      renderExecutiveSummary();
       
       if (currentMainTab === 'graficos') {
         renderCharts(filtered);
@@ -1484,6 +1607,114 @@
       } else if (currentMainTab === 'presupuestos') {
         renderPresupuestosTab();
       }
+    }
+
+    function monthKeyToIndex(m) {
+      if (!m || !m.includes('-')) return null;
+      const [mon, yy] = m.split('-');
+      const mi = MONTHS_ES.indexOf(mon);
+      if (mi < 0) return null;
+      return (2000 + parseInt(yy, 10)) * 12 + mi;
+    }
+
+    function indexToMonthKey(idx) {
+      const y = Math.floor(idx / 12);
+      const m = idx % 12;
+      return MONTHS_ES[m] + '-' + String(y).slice(-2);
+    }
+
+    function coreRowsForMonth(monthKey) {
+      return DATA.filter(d => {
+        if (monthKey && d.mesFmt !== monthKey) return false;
+        if (selectedPersona && d.personaNombre !== selectedPersona) return false;
+        if (!selectedPersona && d.personaNombre === 'Anita') return false;
+        if (selectedCard && d.tarjetaClean !== selectedCard) return false;
+        if (selectedCategory && d.categoria !== selectedCategory) return false;
+        if (search && ![d.descripcion,d.categoria,d.personaNombre,d.rawPersona].some(v => String(v||'').toLowerCase().includes(search))) return false;
+        return true;
+      });
+    }
+
+    function sumARS(rows) {
+      return rows.reduce((s,d) => s + Math.max(0, Number(d.debitoCalculado||0)), 0);
+    }
+
+    function getRepresentativeMonth() {
+      if (selectedMonths.length === 1) return selectedMonths[0];
+      const months = [...new Set(DATA.map(d=>d.mesFmt).filter(Boolean))].sort((a,b)=>(monthKeyToIndex(a)||0)-(monthKeyToIndex(b)||0));
+      return months.length ? months[months.length-1] : '';
+    }
+
+    function parseTxDate(d) {
+      const raw = String(d.fecha || '').trim();
+      let m;
+      if ((m = raw.match(/^(\d{1,2})[-\/]([0-1]?\d)[-\/](\d{2,4})$/))) {
+        const yy = m[3].length===2 ? 2000+Number(m[3]) : Number(m[3]);
+        return new Date(yy, Number(m[2])-1, Number(m[1]));
+      }
+      const dt = new Date(raw);
+      return isNaN(dt) ? null : dt;
+    }
+
+    function renderExecutiveSummary() {
+      const targetMonth = getRepresentativeMonth();
+      const idx = monthKeyToIndex(targetMonth);
+      const prevMonth = idx == null ? '' : indexToMonthKey(idx-1);
+      const currentRows = coreRowsForMonth(targetMonth);
+      const prevRows = coreRowsForMonth(prevMonth);
+      const total = sumARS(currentRows);
+      const prev = sumARS(prevRows);
+      const delta = prev ? ((total-prev)/Math.abs(prev))*100 : null;
+
+      const totalEl=document.getElementById('summaryTotal'); if (!totalEl) return;
+      totalEl.textContent=fmtP(total);
+      document.getElementById('summaryPrev').textContent=prevMonth ? fmtP(prev) : '—';
+      document.getElementById('summaryPeriodText').textContent = targetMonth ? `Gastos de ${targetMonth}${selectedPersona ? ' · '+selectedPersona : ''}` : 'Gastos del período seleccionado';
+      const badge=document.getElementById('summaryMomBadge');
+      if (delta === null || !isFinite(delta)) { badge.textContent='Sin comparación'; badge.className='mb-1 text-xs font-bold px-2.5 py-1 rounded-full bg-slate-700 text-slate-300'; }
+      else { const up=delta>0; badge.textContent=`${up?'↑':'↓'} ${Math.abs(delta).toFixed(1)}% vs ${prevMonth}`; badge.className=`mb-1 text-xs font-bold px-2.5 py-1 rounded-full ${up?'bg-rose-500/15 text-rose-300':'bg-emerald-500/15 text-emerald-300'}`; }
+
+      const dates=currentRows.map(parseTxDate).filter(Boolean);
+      const maxDay=dates.length ? Math.max(...dates.map(d=>d.getDate())) : 0;
+      const mi=idx==null?null:(idx%12), yy=idx==null?null:Math.floor(idx/12);
+      const daysInMonth=mi==null?30:new Date(yy,mi+1,0).getDate();
+      const dailyAvg=maxDay?total/maxDay:0;
+      const forecast=maxDay?dailyAvg*daysInMonth:total;
+      document.getElementById('summaryDailyAvg').textContent=fmtP(dailyAvg);
+      document.getElementById('summaryForecast').textContent=fmtP(forecast);
+
+      const recurringKeywords=['NETFLIX','SPOTIFY','OPENAI','ANTHROPIC','PATREON','YOUTUBE','AMAZON PRIME','CLUB LA NACION','NEW YORK TIMES','NEW YORKER','CANVA','EDENOR','PERSONAL','TUENTI','LA MERIDIONAL','ALLIANZ','SPORTCLUB','GEBA','VELEZ SARSFIELD','BELGRANO ATHLETIC','SAN ANDRES'];
+      const seen=new Set(); let fixed=0;
+      currentRows.forEach(d=>{ const desc=String(d.descripcion||'').toUpperCase(); const rec=recurringKeywords.some(k=>desc.includes(k))||['Suscripciones','Seguros','Telefonía/Internet'].includes(d.categoria); const key=(d.descripcion||'')+'|'+d.personaNombre; if(rec&&!seen.has(key)){seen.add(key);fixed+=Math.max(0,Number(d.debitoCalculado||0));}});
+      document.getElementById('summaryFixed').textContent=fmtP(fixed);
+
+      let pending=0;
+      currentRows.forEach(d=>{ const m=String(d.cuota||'').match(/(\d+)\/(\d+)/); if(!m)return; const rem=Math.max(0,Number(m[2])-Number(m[1])); pending += Math.max(0,Number(d.debitoCalculado||0))*rem; });
+      document.getElementById('summaryInstallments').textContent=fmtP(pending);
+
+      const budgets=loadBudgets(); let budgetTotal=0,budgetSpent=0;
+      const catTotals={}; currentRows.forEach(d=>{const v=Math.max(0,Number(d.debitoCalculado||0)); if(v>0)catTotals[d.categoria||'Sin categoría']=(catTotals[d.categoria||'Sin categoría']||0)+v;});
+      Object.entries(budgets).forEach(([cat,limit])=>{const lim=Number(limit||0); if(lim>0){budgetTotal+=lim;budgetSpent+=Math.max(0,catTotals[cat]||0);}});
+      const pct=budgetTotal?budgetSpent/budgetTotal*100:0;
+      document.getElementById('summaryBudgetSpent').textContent=fmtP(budgetSpent);
+      document.getElementById('summaryBudgetPct').textContent=budgetTotal?`${pct.toFixed(0)}%`:'—';
+      const bar=document.getElementById('summaryBudgetBar'); bar.style.width=Math.min(100,pct)+'%'; bar.className=`progress-fill ${pct>=100?'bg-rose-500':pct>=80?'bg-amber-500':'bg-emerald-500'}`;
+      document.getElementById('summaryBudgetRemain').textContent=budgetTotal ? (budgetSpent<=budgetTotal?`Quedan ${fmtP(budgetTotal-budgetSpent)} de ${fmtP(budgetTotal)}`:`Exceso de ${fmtP(budgetSpent-budgetTotal)} sobre ${fmtP(budgetTotal)}`) : 'Sin presupuesto configurado';
+
+      const prevCats={}; prevRows.forEach(d=>{const v=Math.max(0,Number(d.debitoCalculado||0)); if(v>0)prevCats[d.categoria||'Sin categoría']=(prevCats[d.categoria||'Sin categoría']||0)+v;});
+      const drivers=[...new Set([...Object.keys(catTotals),...Object.keys(prevCats)])].map(cat=>({cat,cur:catTotals[cat]||0,prev:prevCats[cat]||0,diff:(catTotals[cat]||0)-(prevCats[cat]||0)})).sort((a,b)=>Math.abs(b.diff)-Math.abs(a.diff)).slice(0,5);
+      document.getElementById('summaryDrivers').innerHTML=drivers.length?drivers.map(x=>`<div class="insight-row py-3 flex items-center justify-between gap-3"><div><div class="text-sm font-semibold text-slate-200">${x.cat}</div><div class="text-[11px] text-slate-500">${fmtP(x.cur)} vs ${fmtP(x.prev)}</div></div><div class="text-sm font-black ${x.diff>0?'text-rose-300':x.diff<0?'text-emerald-300':'text-slate-400'}">${x.diff>0?'+':''}${fmtP(x.diff)}</div></div>`).join(''):`<div class="py-8 text-center text-sm text-slate-500">Todavía no hay un mes anterior comparable.</div>`;
+
+      const sortedCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).slice(0,6);
+      document.getElementById('summaryTopCats').innerHTML=sortedCats.map(([cat,val],i)=>{const share=total>0?val/total*100:0;return `<button onclick="setCategoryFilter('${String(cat).replace(/'/g,"\\'")}');switchMainTab('detalle')" class="text-left bg-slate-900/65 hover:bg-slate-900 border border-slate-700/60 rounded-xl p-3 transition"><div class="flex justify-between gap-3"><div class="text-sm font-semibold text-slate-200 truncate">${i+1}. ${cat}</div><div class="text-sm font-black text-slate-100">${fmtP(val)}</div></div><div class="flex items-center gap-3 mt-2"><div class="progress-track flex-1"><div class="progress-fill bg-emerald-500" style="width:${Math.min(100,share)}%"></div></div><div class="text-[11px] font-bold text-slate-500 w-12 text-right">${share.toFixed(1)}%</div></div></button>`;}).join('');
+
+      const insights=[];
+      if (sortedCats[0]) insights.push({icon:'fa-tags',tone:'text-amber-400',text:`${sortedCats[0][0]} es el mayor rubro y representa ${(total>0?sortedCats[0][1]/total*100:0).toFixed(1)}% del gasto.`});
+      if (fixed>0 && total>0) insights.push({icon:'fa-repeat',tone:'text-indigo-400',text:`Los gastos fijos detectados equivalen al ${(fixed/total*100).toFixed(1)}% del gasto del período.`});
+      if (pending>0) insights.push({icon:'fa-clock-rotate-left',tone:'text-amber-400',text:`Quedan aproximadamente ${fmtP(pending)} comprometidos en cuotas de compras visibles en este período.`});
+      if (forecast>0 && budgetTotal>0) insights.push({icon:'fa-bullseye',tone:forecast>budgetTotal?'text-rose-400':'text-emerald-400',text:`La proyección de cierre es ${forecast>budgetTotal?'superior':'inferior'} al total de presupuestos configurados por ${fmtP(Math.abs(forecast-budgetTotal))}.`});
+      if (delta!==null && isFinite(delta)) insights.push({icon:'fa-arrow-trend-'+(delta>0?'up':'down'),tone:delta>0?'text-rose-400':'text-emerald-400',text:`El gasto está ${Math.abs(delta).toFixed(1)}% ${delta>0?'por encima':'por debajo'} del mes anterior comparable.`});
+      document.getElementById('summaryInsights').innerHTML=(insights.slice(0,5).map(x=>`<div class="insight-row py-3 flex gap-3"><div class="mt-0.5 w-8 h-8 shrink-0 rounded-lg bg-slate-900 border border-slate-700 flex items-center justify-center"><i class="fa-solid ${x.icon} ${x.tone} text-xs"></i></div><div class="text-sm text-slate-300 leading-relaxed">${x.text}</div></div>`).join('')) || `<div class="py-8 text-center text-sm text-slate-500">Cargá movimientos para generar insights.</div>`;
     }
 
     function getCardVencimiento(cardName) {
@@ -1557,15 +1788,15 @@
 
         rowsHtml += `
           <tr class="hover:bg-slate-700/40 transition font-mono">
-            <td class="py-2.5 px-3 font-sans font-semibold text-slate-200">${cardName}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Sep-26'] ? fmtP(monthlyData['Sep-26']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Oct-26'] ? fmtP(monthlyData['Oct-26']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Nov-26'] ? fmtP(monthlyData['Nov-26']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Dic-26'] ? fmtP(monthlyData['Dic-26']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Ene-27'] ? fmtP(monthlyData['Ene-27']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Feb-27'] ? fmtP(monthlyData['Feb-27']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right">${monthlyData['Mar-27+'] ? fmtP(monthlyData['Mar-27+']) : '<span class="text-slate-600">—</span>'}</td>
-            <td class="py-2.5 px-3 text-right font-bold text-amber-400">${fmtP(cardTotal)}</td>
+            <td class="py-1.5 px-2 text-[11px] font-sans font-semibold text-slate-200">${cardName}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Sep-26'] ? fmtP(monthlyData['Sep-26']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Oct-26'] ? fmtP(monthlyData['Oct-26']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Nov-26'] ? fmtP(monthlyData['Nov-26']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Dic-26'] ? fmtP(monthlyData['Dic-26']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Ene-27'] ? fmtP(monthlyData['Ene-27']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Feb-27'] ? fmtP(monthlyData['Feb-27']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right">${monthlyData['Mar-27+'] ? fmtP(monthlyData['Mar-27+']) : '<span class="text-slate-600">—</span>'}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right font-bold text-amber-400">${fmtP(cardTotal)}</td>
           </tr>
         `;
       });
@@ -1574,15 +1805,15 @@
 
       rowsHtml += `
         <tr class="bg-slate-900/90 font-mono font-bold text-slate-100 border-t-2 border-slate-700">
-          <td class="py-3 px-3 font-sans uppercase tracking-wider text-emerald-400">Total a Pagar</td>
-          <td class="py-3 px-3 text-right text-emerald-400">${fmtP(totalsByMonth['Sep-26'])}</td>
-          <td class="py-3 px-3 text-right">${fmtP(totalsByMonth['Oct-26'])}</td>
-          <td class="py-3 px-3 text-right">${fmtP(totalsByMonth['Nov-26'])}</td>
-          <td class="py-3 px-3 text-right">${fmtP(totalsByMonth['Dic-26'])}</td>
-          <td class="py-3 px-3 text-right">${fmtP(totalsByMonth['Ene-27'])}</td>
-          <td class="py-3 px-3 text-right">${fmtP(totalsByMonth['Feb-27'])}</td>
-          <td class="py-3 px-3 text-right">${fmtP(totalsByMonth['Mar-27+'])}</td>
-          <td class="py-3 px-3 text-right text-amber-400 text-sm font-black">${fmtP(grandTotalFuturo)}</td>
+          <td class="py-2 px-2 text-[11px] font-sans uppercase tracking-wider text-emerald-400">Total a Pagar</td>
+          <td class="py-2 px-2 text-[11px] text-right text-emerald-400">${fmtP(totalsByMonth['Sep-26'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right">${fmtP(totalsByMonth['Oct-26'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right">${fmtP(totalsByMonth['Nov-26'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right">${fmtP(totalsByMonth['Dic-26'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right">${fmtP(totalsByMonth['Ene-27'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right">${fmtP(totalsByMonth['Feb-27'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right">${fmtP(totalsByMonth['Mar-27+'])}</td>
+          <td class="py-2 px-2 text-[11px] text-right text-amber-400 text-sm font-black">${fmtP(grandTotalFuturo)}</td>
         </tr>
       `;
 
@@ -1612,15 +1843,15 @@
 
         return `
           <tr class="hover:bg-slate-700/40 transition">
-            <td class="py-2.5 px-3 font-medium text-slate-100">${d.descripcion}</td>
-            <td class="py-2.5 px-3 font-semibold text-slate-300">${d.personaNombre}</td>
-            <td class="py-2.5 px-3 text-slate-300">${d.tarjetaClean}</td>
-            <td class="py-2.5 px-3 text-center">
+            <td class="py-1.5 px-2 text-[11px] font-medium text-slate-100 max-w-[180px] sm:max-w-[240px] truncate" title="${d.descripcion}">${d.descripcion}</td>
+            <td class="py-1.5 px-2 text-[11px] font-semibold text-slate-300">${d.personaNombre}</td>
+            <td class="py-1.5 px-2 text-[11px] text-slate-300">${d.tarjetaClean}</td>
+            <td class="py-1.5 px-2 text-[11px] text-center">
               <span class="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-amber-300 font-mono text-[11px] font-bold">${d.cuota}</span>
             </td>
-            <td class="py-2.5 px-3 text-center font-mono text-slate-300">${remaining} cuota${remaining !== 1 ? 's' : ''}</td>
-            <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-200">${fmtP(amount)}</td>
-            <td class="py-2.5 px-3 text-right font-mono font-black text-amber-400">${fmtP(pendingAmount)}</td>
+            <td class="py-1.5 px-2 text-[11px] text-center font-mono text-slate-300">${remaining} cuota${remaining !== 1 ? 's' : ''}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right font-mono font-bold text-slate-200">${fmtP(amount)}</td>
+            <td class="py-1.5 px-2 text-[11px] text-right font-mono font-black text-amber-400">${fmtP(pendingAmount)}</td>
           </tr>
         `;
       }).join('');
@@ -1629,6 +1860,12 @@
     function renderTrendChart() {
       const canvas = document.getElementById('trendChartCanvas');
       if (!canvas) return;
+
+      const currFilter = document.getElementById('filterCurrency').value;
+      const isUSD = (currFilter === 'usd');
+      const formatter = isUSD ? fmtUSD : fmtP;
+
+      document.getElementById('chartTitleTrend').textContent = `Tendencia de Gastos en el Tiempo (${isUSD ? 'USD' : 'ARS'})`;
 
       const allMonths = [...new Set(DATA.map(d => d.mesFmt).filter(Boolean))].sort((a, b) => {
         const [ma, ya] = a.split('-'), [mb, yb] = b.split('-');
@@ -1647,7 +1884,7 @@
 
       if (activeTrendCategories.length === 0) {
         const dataVals = allMonths.map(m => {
-          return sourceData.filter(d => d.mesFmt === m).reduce((s, d) => s + (d.debitoCalculado - d.creditoCalculado), 0);
+          return sourceData.filter(d => d.mesFmt === m).reduce((s, d) => s + Math.max(0, Number(d.debitoCalculado || 0)), 0);
         });
         datasets = [{
           label: 'Gasto Total Consolidado',
@@ -1663,7 +1900,7 @@
       } else {
         datasets = activeTrendCategories.map((catName, i) => {
           const vals = allMonths.map(m => {
-            return sourceData.filter(d => d.mesFmt === m && d.categoria === catName).reduce((s, d) => s + (d.debitoCalculado - d.creditoCalculado), 0);
+            return sourceData.filter(d => d.mesFmt === m && d.categoria === catName).reduce((s, d) => s + Math.max(0, Number(d.debitoCalculado || 0)), 0);
           });
           return {
             label: catName,
@@ -1697,13 +1934,13 @@
             },
             tooltip: {
               callbacks: {
-                label: ctx => ` ${ctx.dataset.label}: ${fmtP(ctx.raw)}`
+                label: ctx => ` ${ctx.dataset.label}: ${formatter(ctx.raw)}`
               }
             }
           },
           scales: {
             x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#1e293b' } },
-            y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => '$' + (v / 1000000).toFixed(1) + 'M' }, grid: { color: '#1e293b' } }
+            y: { ticks: { color: '#64748b', font: { size: 10 }, callback: v => isUSD ? 'USD ' + v.toLocaleString('en-US') : '$' + (v / 1000000).toFixed(1) + 'M' }, grid: { color: '#1e293b' } }
           }
         }
       });
@@ -1717,7 +1954,7 @@
       filtered.forEach(d => {
         const isExcluded = (!selectedPersona && (d.personaNombre === 'Anita'));
         if (!isExcluded) {
-          const p = currFilter === 'usd' ? (d.usdCalculado || 0) : (d.debitoCalculado - d.creditoCalculado);
+          const p = currFilter === 'usd' ? Math.max(0, Number(d.usdCalculado || 0)) : Math.max(0, Number(d.debitoCalculado || 0));
           if (p > 0) {
             const c = d.categoria || 'Sin categoría';
             catTotals[c] = (catTotals[c] || 0) + p;
@@ -1823,7 +2060,7 @@
           if (d.mesFmt === prevMonth) {
             const isExcluded = (!selectedPersona && (d.personaNombre === 'Anita'));
             if (!isExcluded) {
-              const p = currFilter === 'usd' ? (d.usdCalculado || 0) : (d.debitoCalculado - d.creditoCalculado);
+              const p = Math.max(0, Number(d.debitoCalculado || 0));
               if (p > 0 && d.categoria) {
                 prevMonthMap[d.categoria] = (prevMonthMap[d.categoria] || 0) + p;
               }
@@ -1836,7 +2073,7 @@
       if (totalsCardsContainer) {
         totalsCardsContainer.innerHTML = sortedCats.map(([catName, val], idx) => {
           const pct = totalGastadoCategorias > 0 ? ((val / totalGastadoCategorias) * 100).toFixed(1) : '0';
-          const prevVal = prevMonthMap[catName] || 0;
+          const prevVal = prevMonthMap[catName] || 0; const formatter = currFilter === 'usd' ? fmtUSD : fmtP; const prevFormatter = currFilter === 'usd' ? fmtUSD : fmtP;
           let diffHtml = '<span class="text-slate-500 text-[10px]">Sin comparativa previa</span>';
           
           if (prevMonth && prevVal > 0) {
@@ -1845,7 +2082,6 @@
             const isUp = diff > 0;
             const colorClass = isUp ? 'text-rose-400' : 'text-emerald-400';
             const iconClass = isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
-            const formatter = currFilter === 'usd' ? fmtUSD : fmtP;
             const diffFormatted = (isUp ? '+ ' : '- ') + formatter(Math.abs(diff));
             diffHtml = `
               <span class="${colorClass} text-[10px] font-mono flex items-center gap-1">
@@ -1853,9 +2089,6 @@
               </span>
             `;
           }
-
-          const formatter = currFilter === 'usd' ? fmtUSD : fmtP;
-          const prevFormatter = currFilter === 'usd' ? fmtUSD : fmtP;
 
           return `
             <div class="bg-slate-900 border border-slate-700/80 rounded-xl p-3 space-y-1.5 shadow-sm">
@@ -1878,7 +2111,7 @@
       const memberTotals = { 'Martín': 0, 'Flor': 0, 'Pili': 0, 'Tomy': 0, 'Bauti': 0, 'Anita': 0, 'Mamá': 0 };
 
       filtered.forEach(d => {
-        const p = currFilter === 'usd' ? (d.usdCalculado || 0) : (d.debitoCalculado - d.creditoCalculado);
+        const p = Math.max(0, Number(d.debitoCalculado || 0));
         if (p > 0 && memberTotals.hasOwnProperty(d.personaNombre)) {
           memberTotals[d.personaNombre] += p;
         }
@@ -1931,44 +2164,49 @@
 
         return `
           <tr class="hover:bg-slate-700/40 transition">
-            <td class="py-2.5 px-3 text-slate-400 whitespace-nowrap">${d.fecha}</td>
-            <td class="py-2.5 px-3 text-amber-400/90 whitespace-nowrap font-medium text-[11px] hidden md:table-cell">${d.mesFmt}</td>
-            <td class="py-2.5 px-3 font-medium text-slate-100">${d.descripcion}</td>
-            <td class="py-2.5 px-3 text-slate-300 whitespace-nowrap font-semibold">${d.personaNombre}</td>
-            <td class="py-2.5 px-3 whitespace-nowrap hidden sm:table-cell">
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${cardStyle}">${d.tarjetaClean}</span>
+            <td class="py-1.5 px-2 text-[11px] text-slate-400 whitespace-nowrap">${d.fecha}</td>
+            <td class="py-1.5 px-2 text-[11px] text-amber-400/90 whitespace-nowrap font-medium hidden xl:table-cell">${d.mesFmt}</td>
+            <td class="py-1.5 px-2 text-[11px] font-medium text-slate-100 max-w-[180px] sm:max-w-[240px] truncate" title="${d.descripcion}">${d.descripcion}</td>
+            <td class="py-1.5 px-2 text-[11px] text-slate-300 whitespace-nowrap font-semibold">${d.personaNombre}</td>
+            <td class="py-1.5 px-2 text-[11px] whitespace-nowrap hidden md:table-cell">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold ${cardStyle}">${d.tarjetaClean}</span>
             </td>
-            <td class="py-2.5 px-3 whitespace-nowrap">
-              <button onclick="openCatMenu(event, ${index})" class="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-900 border border-slate-700 text-slate-300 hover:border-emerald-400 hover:text-white transition flex items-center gap-1.5" title="Click para cambiar categoría">
+            <td class="py-1.5 px-2 text-[11px] whitespace-nowrap">
+              <button onclick="openCatMenu(event, ${index})" class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-900 border border-slate-700 text-slate-300 hover:border-emerald-400 hover:text-white transition flex items-center gap-1" title="Click para cambiar categoría">
                 <span>${d.categoria || 'Sin categoría'}</span>
-                <i class="fa-solid fa-pen text-[9px] opacity-50"></i>
+                <i class="fa-solid fa-pen text-[8px] opacity-50"></i>
               </button>
             </td>
-            <td class="py-2.5 px-3 text-center hidden lg:table-cell">
+            <td class="py-1.5 px-1.5 text-[11px] text-center hidden lg:table-cell">
               <span class="text-[10px] ${cuotaVal ? 'text-amber-400 font-bold' : 'text-slate-500'}">${cuotaVal || '1/1'}</span>
             </td>
-            <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap text-emerald-400">
+            <td class="py-1.5 px-2 text-[11px] text-right font-bold whitespace-nowrap text-emerald-400">
               ${d.debitoCalculado > 0 ? fmtP(d.debitoCalculado) : ''}
             </td>
-            <td class="py-2.5 px-3 text-right font-semibold whitespace-nowrap text-cyan-300">
+            <td class="py-1.5 px-2 text-[11px] text-right font-semibold whitespace-nowrap text-cyan-300 hidden lg:table-cell">
               ${d.creditoCalculado > 0 ? fmtP(d.creditoCalculado) : ''}
             </td>
-            <td class="py-2.5 px-3 text-right font-bold whitespace-nowrap text-cyan-400">
+            <td class="py-1.5 px-2 text-[11px] text-right font-bold whitespace-nowrap text-cyan-400">
               ${d.usdCalculado !== 0 ? fmtUSD(d.usdCalculado) : ''}
             </td>
           </tr>
         `;
       }).join('');
 
-      const totalRowHtml = `
+      // Fila de total al final de la tabla
+
+            const totalRowHtml = `
         <tr class="bg-slate-900 font-mono font-bold text-slate-100 border-t-2 border-slate-600">
-          <td colspan="4" class="py-3 px-3 font-sans font-bold uppercase tracking-wider text-emerald-400 text-left">Total Filtrado (${filtered.length} mov.)</td>
-          <td class="py-3 px-3 text-right text-emerald-400 whitespace-nowrap">${sumDebito > 0 ? fmtP(sumDebito) : '—'}</td>
-          <td class="py-3 px-3 text-right text-cyan-300 whitespace-nowrap">${sumCredito > 0 ? fmtP(sumCredito) : '—'}</td>
-          <td class="py-3 px-3 text-right text-cyan-400 whitespace-nowrap">${sumUsd !== 0 ? fmtUSD(sumUsd) : '—'}</td>
+          <td colspan="3" class="py-2.5 px-2 text-[11px] font-sans font-bold uppercase tracking-wider text-emerald-400 text-left whitespace-nowrap">Total Filtrado (${filtered.length} mov.)</td>
+          <td class="hidden xl:table-cell"></td>
+          <td class="hidden md:table-cell"></td>
+          <td></td>
+          <td class="hidden lg:table-cell"></td>
+          <td class="py-2.5 px-2 text-[11px] text-right text-emerald-400 whitespace-nowrap">${sumDebito > 0 ? fmtP(sumDebito) : '—'}</td>
+          <td class="py-2.5 px-2 text-[11px] text-right text-cyan-300 whitespace-nowrap hidden lg:table-cell">${sumCredito > 0 ? fmtP(sumCredito) : '—'}</td>
+          <td class="py-2.5 px-2 text-[11px] text-right text-cyan-400 whitespace-nowrap">${sumUsd !== 0 ? fmtUSD(sumUsd) : '—'}</td>
         </tr>
       `;
-
       tbody.innerHTML = rowsHtml + totalRowHtml;
       document.getElementById('tableStats').textContent = `Mostrando ${filtered.length} de ${DATA.length} movimientos`;
     }
@@ -2117,8 +2355,11 @@
       saveRulesToStorage(getRulesFromUI());
       closeRulesModal();
       DATA.forEach(d => {
-        const ruleCat = applyRules(d);
-        if (ruleCat) d.categoria = ruleCat;
+        // Nunca pisar una categoría existente proveniente del Sheet o editada manualmente.
+        if (!String(d.categoria || '').trim() || d.categoria === 'Sin categoría') {
+          const ruleCat = applyRules(d);
+          if (ruleCat) d.categoria = ruleCat;
+        }
       });
       populateFilters();
       initTrendPills();
@@ -2190,6 +2431,19 @@
       XLSX.writeFile(wb, `Control_Gastos_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 
+        
+    function toggleFiltersCollapse() {
+      filtersCollapsed = !filtersCollapsed;
+      const content = document.getElementById('collapsibleFiltersContent');
+      const icon = document.getElementById('collapseIcon');
+      if (filtersCollapsed) {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(180deg)';
+      } else {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(0deg)';
+      }
+    }
     let filtersCollapsed = false;
     function toggleFiltersCollapse() {
       filtersCollapsed = !filtersCollapsed;
@@ -2203,7 +2457,6 @@
         icon.style.transform = 'rotate(0deg)';
       }
     }
-
     loadData();
   </script>
 </body>
