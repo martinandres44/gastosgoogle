@@ -1128,7 +1128,8 @@
       const tbody = document.getElementById('tbodyRecurrentes');
       if (!tbody) return;
 
-      const recurringKeywords = ['NETFLIX', 'SPOTIFY', 'OPENAI', 'ANTHROPIC', 'PATREON', 'YOUTUBE', 'AMAZON PRIME', 'CLUB LA NACION', 'NEW YORK TIMES', 'NEW YORKER', 'CANVA', 'EDENOR', 'PERSONAL', 'TUENTI', 'LA MERIDIONAL', 'ALLIANZ', 'SPORTCLUB', 'GEBA', 'VELEZ SARSFIELD', 'BELGRANO ATHLETIC', 'JUMBO PRIME', 'SAN ANDRES'];
+      const recurringKeywords = ['NETFLIX', 'SPOTIFY', 'OPENAI', 'ANTHROPIC', 'PATREON', 'YOUTUBE', 'AMAZON PRIME', 'CLUB LA NACION', 'NEW YORK TIMES', 'NEW YORKER', 'CANVA', 'EDENOR', 'PERSONAL', 'TUENTI', 'LA MERIDIONAL', 'ALLIANZ', 'SPORTCLUB', 'GEBA', 'VELEZ SARSFIELD', 'BELGRANO ATHLETIC', 'JUMBO PRIME', 'SAN ANDRES', 'SAN MATEO', 'ST MATTHEW', 'ST. MATTHEW', 'MATTHEW', 'OLIVOS', 'ARRIBEÑOS'];
+      const recCats = ['Suscripciones', 'Seguros', 'Telefonía/Internet', 'Educación', 'Expensas', 'Personal doméstico'];
 
       const monthFiltered = DATA.filter(d => (!selectedMonths.length || selectedMonths.includes(d.mesFmt)));
       const detected = [];
@@ -1136,7 +1137,7 @@
 
       monthFiltered.forEach(d => {
         const descUpper = String(d.descripcion || '').toUpperCase();
-        const isRec = recurringKeywords.some(kw => descUpper.includes(kw)) || d.categoria === 'Suscripciones' || d.categoria === 'Seguros' || d.categoria === 'Telefonía/Internet';
+        const isRec = recurringKeywords.some(kw => descUpper.includes(kw)) || recCats.includes(d.categoria);
         
         if (isRec) {
           const key = d.descripcion + '|' + d.personaNombre;
@@ -1338,18 +1339,30 @@
       });
 
       const monthPanel = document.getElementById('monthDropPanel');
+      const years = [...new Set(allMonths.map(m => m.split('-')[1]))].sort();
+      const yearButtons = years.map(yy => `
+        <button onclick="selectYear(event, '${yy}')" class="flex-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold py-1.5 rounded transition">
+            20${yy}
+        </button>
+      `).join('');
+
       monthPanel.innerHTML = `
         <label class="flex items-center gap-2 p-2 hover:bg-slate-700 rounded-lg cursor-pointer text-xs font-semibold text-slate-200">
           <input type="checkbox" id="cbAllMonths" ${selectedMonths.length === 0 ? 'checked' : ''} onchange="onSelectAllMonths(this)" class="accent-emerald-500 rounded">
-          <span>Todos los Meses (${allMonths.length})</span>
+          <span>Histórico (Todos)</span>
         </label>
+        <div class="flex gap-1.5 px-2 pb-2">
+          ${yearButtons}
+        </div>
         <div class="border-t border-slate-700 my-1"></div>
-        ${allMonths.map(m => `
-          <label class="flex items-center gap-2 p-2 hover:bg-slate-700 rounded-lg cursor-pointer text-xs font-semibold text-slate-300">
-            <input type="checkbox" class="cb-month accent-emerald-500 rounded" value="${m}" ${selectedMonths.includes(m) ? 'checked' : ''} onchange="onMonthCheckboxChange()">
-            <span>${m}</span>
-          </label>
-        `).join('')}
+        <div class="max-h-56 overflow-y-auto pr-1">
+          ${allMonths.map(m => `
+            <label class="flex items-center gap-2 p-2 hover:bg-slate-700 rounded-lg cursor-pointer text-xs font-semibold text-slate-300">
+              <input type="checkbox" class="cb-month accent-emerald-500 rounded" value="${m}" ${selectedMonths.includes(m) ? 'checked' : ''} onchange="onMonthCheckboxChange()">
+              <span>${m}</span>
+            </label>
+          `).join('')}
+        </div>
       `;
       updateMonthButtonLabel();
 
@@ -1418,11 +1431,32 @@
       updateDashboard();
     }
 
+    function selectYear(e, yy) {
+      if (e) e.stopPropagation();
+      const allMonths = [...new Set(DATA.map(d => d.mesFmt).filter(Boolean))];
+      selectedMonths = allMonths.filter(m => m.endsWith('-' + yy));
+      populateFilters();
+      updateDashboard();
+    }
+
     function updateMonthButtonLabel() {
       const lbl = document.getElementById('monthDropLabel');
-      if (selectedMonths.length === 0) lbl.textContent = 'Todos los Meses';
-      else if (selectedMonths.length === 1) lbl.textContent = selectedMonths[0];
-      else lbl.textContent = `${selectedMonths[0]} (+${selectedMonths.length - 1})`;
+      if (selectedMonths.length === 0) {
+        lbl.textContent = 'Histórico';
+      } else {
+        const allMonths = [...new Set(DATA.map(d => d.mesFmt).filter(Boolean))];
+        const yearsSet = [...new Set(selectedMonths.map(m => m.split('-')[1]))];
+        if (yearsSet.length === 1) {
+           const yy = yearsSet[0];
+           const yearMonths = allMonths.filter(m => m.endsWith('-' + yy));
+           if (selectedMonths.length === yearMonths.length && yearMonths.length > 1) {
+              lbl.textContent = 'Año 20' + yy;
+              return;
+           }
+        }
+        if (selectedMonths.length === 1) lbl.textContent = selectedMonths[0];
+        else lbl.textContent = `${selectedMonths[0]} (+${selectedMonths.length - 1})`;
+      }
     }
 
     function setPersonaFilter(person) {
@@ -1683,9 +1717,10 @@
       document.getElementById('summaryDailyAvg').textContent=fmtP(dailyAvg);
       document.getElementById('summaryForecast').textContent=fmtP(forecast);
 
-      const recurringKeywords=['NETFLIX','SPOTIFY','OPENAI','ANTHROPIC','PATREON','YOUTUBE','AMAZON PRIME','CLUB LA NACION','NEW YORK TIMES','NEW YORKER','CANVA','EDENOR','PERSONAL','TUENTI','LA MERIDIONAL','ALLIANZ','SPORTCLUB','GEBA','VELEZ SARSFIELD','BELGRANO ATHLETIC','SAN ANDRES'];
+      const recurringKeywords=['NETFLIX','SPOTIFY','OPENAI','ANTHROPIC','PATREON','YOUTUBE','AMAZON PRIME','CLUB LA NACION','NEW YORK TIMES','NEW YORKER','CANVA','EDENOR','PERSONAL','TUENTI','LA MERIDIONAL','ALLIANZ','SPORTCLUB','GEBA','VELEZ SARSFIELD','BELGRANO ATHLETIC','SAN ANDRES','SAN MATEO','ST MATTHEW','ST. MATTHEW','MATTHEW','OLIVOS','ARRIBEÑOS'];
+      const recCats=['Suscripciones','Seguros','Telefonía/Internet','Educación','Expensas','Personal doméstico'];
       const seen=new Set(); let fixed=0;
-      currentRows.forEach(d=>{ const desc=String(d.descripcion||'').toUpperCase(); const rec=recurringKeywords.some(k=>desc.includes(k))||['Suscripciones','Seguros','Telefonía/Internet'].includes(d.categoria); const key=(d.descripcion||'')+'|'+d.personaNombre; if(rec&&!seen.has(key)){seen.add(key);fixed+=Math.max(0,Number(d.debitoCalculado||0));}});
+      currentRows.forEach(d=>{ const desc=String(d.descripcion||'').toUpperCase(); const rec=recurringKeywords.some(k=>desc.includes(k))||recCats.includes(d.categoria); const key=(d.descripcion||'')+'|'+d.personaNombre; if(rec&&!seen.has(key)){seen.add(key);fixed+=Math.max(0,Number(d.debitoCalculado||0));}});
       document.getElementById('summaryFixed').textContent=fmtP(fixed);
 
       let pending=0;
