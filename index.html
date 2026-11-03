@@ -1753,11 +1753,7 @@
     }
 
     function getCardVencimiento(cardName) {
-      const u = cardName.toUpperCase();
-      if (u.includes('AMEX')) return '04-Sep';
-      if (u.includes('BBVA')) return '07-Sep';
-      if (u.includes('MC') || u.includes('MASTER')) return '01-Sep';
-      if (u.includes('VISA')) return '04-Sep';
+      // Las fechas fijas fueron removidas para evitar datos desactualizados
       return '';
     }
 
