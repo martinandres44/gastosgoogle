@@ -1017,9 +1017,7 @@
     let editingRowRef = null;
     let currentMainTab = 'resumen';
 
-    let includeAnita = false;
-    let includeMama = false;
-    let activeTrendCategories = [];
+        let activeTrendCategories = [];
 
     let catChartInstance = null;
     let catBarChartInstance = null;
@@ -1176,11 +1174,12 @@
       });
 
       const recurrentesFiltered = detected.filter(d => {
-        if (selectedPersona) {
+        if (selectedPersona === 'all') {
+           // Muestra todos
+        } else if (selectedPersona) {
            if (d.personaNombre !== selectedPersona) return false;
         } else {
-           if (!includeAnita && d.personaNombre === 'Anita') return false;
-           if (!includeMama && d.personaNombre === 'Mamá') return false;
+           if (d.personaNombre === 'Anita' || d.personaNombre === 'Mamá') return false;
         }
         return true;
       });
@@ -1391,21 +1390,18 @@
 
       const memberContainer = document.getElementById('memberPillsContainer');
       memberContainer.innerHTML = `
-        <button onclick="setPersonaFilter('')" class="pill-btn text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 ${selectedPersona === '' ? 'active' : 'bg-slate-900'}" title="Ver gastos del núcleo familiar">
-          Núcleo
+        <button onclick="setPersonaFilter('')" class="pill-btn text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 ${selectedPersona === '' ? 'active' : 'bg-slate-900'}" title="Martín, Flor, Pili, Tomy, Bauti">
+          Núcleo (5)
         </button>
-        ${['Martín', 'Flor', 'Pili', 'Tomy', 'Bauti'].map(p => `
-          <button onclick="setPersonaFilter('${p}')" class="pill-btn text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 flex items-center gap-1.5 ${selectedPersona === p ? 'active-blue' : 'bg-slate-900'}">
+        <button onclick="setPersonaFilter('all')" class="pill-btn text-xs px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 flex items-center gap-1.5 ${selectedPersona === 'all' ? 'active-amber' : 'bg-slate-900'}" title="Incluir todos los gastos del archivo (Núcleo + Ana + Mamá)">
+          <i class="fa-solid fa-users text-[10px] opacity-70"></i> Consolidado Total
+        </button>
+        <div class="w-[1px] h-6 bg-slate-700 mx-1"></div>
+        ${['Martín', 'Flor', 'Pili', 'Tomy', 'Bauti', 'Anita', 'Mamá'].map(p => `
+          <button onclick="setPersonaFilter('${p}')" class="pill-btn text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 text-slate-300 flex items-center gap-1.5 ${selectedPersona === p ? (p === 'Anita' || p === 'Mamá' ? 'bg-indigo-600 text-white font-bold border-indigo-500' : 'active-blue') : 'bg-slate-900'}">
             ${p}
           </button>
         `).join('')}
-        <div class="w-[1px] h-6 bg-slate-700 mx-1"></div>
-        <button onclick="toggleExtraPerson('Anita')" class="pill-btn text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 ${includeAnita ? 'bg-indigo-600 text-white font-bold border-indigo-500' : 'bg-slate-900 text-slate-400'}" title="Sumar gastos de Anita al total">
-          <i class="fa-solid ${includeAnita ? 'fa-check' : 'fa-plus'} text-[10px]"></i> Anita
-        </button>
-        <button onclick="toggleExtraPerson('Mamá')" class="pill-btn text-xs px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5 ${includeMama ? 'bg-indigo-600 text-white font-bold border-indigo-500' : 'bg-slate-900 text-slate-400'}" title="Sumar gastos de Mamá al total">
-          <i class="fa-solid ${includeMama ? 'fa-check' : 'fa-plus'} text-[10px]"></i> Mamá
-        </button>
       `;
 
       const allCatsList = getAllCats();
@@ -1483,14 +1479,7 @@
       }
     }
 
-    function toggleExtraPerson(name) {
-      if (name === 'Anita') includeAnita = !includeAnita;
-      if (name === 'Mamá') includeMama = !includeMama;
-      selectedPersona = ''; // Reset individual selection so the overall view applies
-      populateFilters();
-      updateDashboard();
-    }
-
+    
     function setPersonaFilter(person) {
       selectedPersona = person;
       populateFilters();
@@ -1566,11 +1555,14 @@
       const curr = document.getElementById('filterCurrency').value;
 
       return DATA.filter(d => {
-        if (selectedPersona) {
+        if (selectedPersona === 'all') {
+          // Muestra a todos sin excluir a nadie (Consolidado Total)
+        } else if (selectedPersona) {
+          // Muestra solo a la persona seleccionada (ej. 'Anita' o 'Martín')
           if (d.personaNombre !== selectedPersona) return false;
         } else {
-          if (!includeAnita && d.personaNombre === 'Anita') return false;
-          if (!includeMama && d.personaNombre === 'Mamá') return false;
+          // Muestra al Núcleo Familiar (excluye a Anita y Mamá por defecto)
+          if (d.personaNombre === 'Anita' || d.personaNombre === 'Mamá') return false;
         }
 
         if (selectedFlujo === 'egreso' && d.debitoCalculado === 0 && d.usdCalculado === 0 && d.creditoCalculado > 0) return false;
@@ -1693,11 +1685,12 @@
     function coreRowsForMonth(monthKey) {
       return DATA.filter(d => {
         if (monthKey && d.mesFmt !== monthKey) return false;
-        if (selectedPersona) {
+        if (selectedPersona === 'all') {
+          // Consolidado Total (incluye a todos)
+        } else if (selectedPersona) {
           if (d.personaNombre !== selectedPersona) return false;
         } else {
-          if (!includeAnita && d.personaNombre === 'Anita') return false;
-          if (!includeMama && d.personaNombre === 'Mamá') return false;
+          if (d.personaNombre === 'Anita' || d.personaNombre === 'Mamá') return false;
         }
         if (selectedCard && d.tarjetaClean !== selectedCard) return false;
         if (selectedCategory && d.categoria !== selectedCategory) return false;
@@ -1893,11 +1886,12 @@
       const cuotaTransactions = DATA.filter(d => {
         if (!d.cuota || !/\d+\/\d+/.test(d.cuota)) return false;
         if (!selectedMonths.length || selectedMonths.includes(d.mesFmt) || d.mesFmt === 'Ago-26') {
-          if (selectedPersona) {
+          if (selectedPersona === 'all') {
+             // Todos
+          } else if (selectedPersona) {
              if (d.personaNombre !== selectedPersona) return false;
           } else {
-             if (!includeAnita && d.personaNombre === 'Anita') return false;
-             if (!includeMama && d.personaNombre === 'Mamá') return false;
+             if (d.personaNombre === 'Anita' || d.personaNombre === 'Mamá') return false;
           }
           return true;
         }
@@ -1945,11 +1939,12 @@
       });
 
       const sourceData = DATA.filter(d => {
-        if (selectedPersona) {
+        if (selectedPersona === 'all') {
+          // Consolidado
+        } else if (selectedPersona) {
           if (d.personaNombre !== selectedPersona) return false;
         } else {
-          if (!includeAnita && d.personaNombre === 'Anita') return false;
-          if (!includeMama && d.personaNombre === 'Mamá') return false;
+          if (d.personaNombre === 'Anita' || d.personaNombre === 'Mamá') return false;
         }
         if (selectedCard && d.tarjetaClean !== selectedCard) return false;
         return true;
