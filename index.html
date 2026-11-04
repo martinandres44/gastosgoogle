@@ -903,10 +903,25 @@
       if (!c) return '';
       const s = String(c).trim();
       const u = s.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      
       if (u === 'SIN CATEGORIA' || u === 'SIN CLASIFICAR' || u === '-' || u === 'N/A' || u === 'NONE') return '';
-      if (u === 'AUTO' || u === 'AUTOMOVIL' || u === 'AUTOS') return 'Automóvil';
+      
+      // Fusiones solicitadas
+      if (u === 'AUTO' || u === 'AUTOMOVIL' || u === 'AUTOS') return 'Auto';
+      if (u === 'SHOPPING' || u === 'SHOPPING/ROPA' || u === 'SHOPPING ROPA' || u === 'ROPA') return 'Shopping/Ropa';
+      if (u === 'SUELDO' || u === 'INGRESO SUELDO' || u === 'INGRESOS SUELDO') return 'Sueldo';
+      if (u === 'TELEFONIA' || u === 'TELEFONIA/INTERNET' || u === 'INTERNET' || u === 'TELEFONIA E INTERNET') return 'Telefonía/Internet';
+      if (u === 'PAGO TARJETA' || u === 'PAGO TARJETAS' || u === 'PAGO DE TARJETA' || u === 'PAGO DE TARJETAS') return 'Pago Tarjetas';
+      if (u === 'VARIOS' || u === 'OTROS' || u === 'OTRAS') return 'Varios';
+      
+      // Otras unificaciones útiles base
       if (u === 'COMBUSTIBLE' || u === 'COMBUSTIBLES' || u === 'NAFTA' || u === 'GNC' || u === 'ESTACION DE SERVICIO') return 'Combustible';
-      return s;
+      if (u === 'SERVICIOS DEL HOGAR' || u === 'SERVICIOS') return 'Servicios';
+      if (u === 'FARMACIA' || u === 'SALUD' || u === 'FARMACIA/SALUD') return 'Farmacia/Salud';
+      
+      // Buscar coincidencia exacta en las categorías base para evitar duplicados por mayúsculas/minúsculas (ej: delivery vs Delivery)
+      const match = BASE_CATS.find(b => b.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === u);
+      return match ? match : (s.charAt(0).toUpperCase() + s.slice(1));
     }
 
     function parseAmt(val) {
